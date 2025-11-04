@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "detalle_ventas",
+  "info": {
+    "singularName": "detalle-venta",
+    "pluralName": "detalle-ventas",
+    "displayName": "detalle_venta"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "producto": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::producto.producto",
+      "inversedBy": "detalle_venta"
+    },
+    "cantidad": {
+      "type": "integer",
+      "required": true
+    },
+    "precio_unitario": {
+      "type": "decimal",
+      "required": true
+    }
+  }
+}

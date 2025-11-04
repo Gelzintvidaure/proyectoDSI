@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "inventarios",
+  "info": {
+    "singularName": "inventario",
+    "pluralName": "inventarios",
+    "displayName": "Inventario"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "producto": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::producto.producto",
+      "inversedBy": "inventarios"
+    },
+    "cantidad_movida": {
+      "type": "integer",
+      "required": true
+    },
+    "fecha_movimiento": {
+      "type": "datetime"
+    },
+    "descripcion_mov": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    }
+  }
+}

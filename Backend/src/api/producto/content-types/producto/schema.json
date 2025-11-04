@@ -1,0 +1,66 @@
+{
+  "kind": "collectionType",
+  "collectionName": "productos",
+  "info": {
+    "singularName": "producto",
+    "pluralName": "productos",
+    "displayName": "Producto"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nombre": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "descripcion": {
+      "type": "blocks",
+      "required": false
+    },
+    "precio_compra": {
+      "type": "decimal",
+      "required": true
+    },
+    "precio_venta": {
+      "type": "decimal",
+      "required": true
+    },
+    "estado": {
+      "type": "boolean",
+      "required": true
+    },
+    "fecha_creacion": {
+      "type": "datetime",
+      "required": true
+    },
+    "fecha_actualizacion": {
+      "type": "datetime",
+      "required": true
+    },
+    "categoria": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::categoria.categoria",
+      "inversedBy": "productos"
+    },
+    "stock_actual": {
+      "type": "integer",
+      "required": true
+    },
+    "inventarios": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::inventario.inventario",
+      "mappedBy": "producto"
+    },
+    "detalle_venta": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::detalle-venta.detalle-venta",
+      "mappedBy": "producto"
+    }
+  }
+}
