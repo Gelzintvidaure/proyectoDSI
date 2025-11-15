@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
 import { useAuthStore } from '../stores/authStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+
+interface LoginFormData {
+  identifier: string;
+  password: string;
+}
 
 export const Login = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -10,30 +16,28 @@ export const Login = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError: setFormError,
+  } = useForm<LoginFormData>();
+
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       navigate('/dashboard/inventario', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({ identifier, password });
+      await login({ identifier: data.identifier, password: data.password });
       navigate('/dashboard/inventario');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
-    } finally {
-      setIsLoading(false);
+      const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
+      setFormError('root', { message: errorMessage });
     }
   };
 
@@ -62,20 +66,21 @@ export const Login = () => {
           <p className="text-sm text-gray-600 text-center mb-6">Accede a tu cuenta de la miscelánea</p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {errors.root && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
+                {errors.root.message}
               </div>
             )}
 
             <Input
               label="Usuario o Email"
               type="text"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              {...register('identifier', {
+                required: 'El usuario o email es requerido',
+              })}
               placeholder="Ingresa tu usuario o email"
-              required
+              error={errors.identifier?.message}
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -86,10 +91,11 @@ export const Login = () => {
             <Input
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register('password', {
+                required: 'La contraseña es requerida',
+              })}
               placeholder="Ingresa tu contraseña"
-              required
+              error={errors.password?.message}
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -119,7 +125,7 @@ export const Login = () => {
               type="submit"
               variant="primary"
               size="lg"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
               className="w-full"
             >
               Iniciar Sesión
