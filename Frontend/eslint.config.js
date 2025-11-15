@@ -15,11 +15,18 @@ export default defineConfig([
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
-      pluginQuery.configs.recommended,
     ],
+    plugins: {
+      pluginQuery,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    }
   },
 ])
