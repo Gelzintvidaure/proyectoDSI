@@ -32,14 +32,6 @@
       "type": "boolean",
       "required": true
     },
-    "fecha_creacion": {
-      "type": "datetime",
-      "required": true
-    },
-    "fecha_actualizacion": {
-      "type": "datetime",
-      "required": true
-    },
     "categoria": {
       "type": "relation",
       "relation": "manyToOne",

@@ -551,8 +551,6 @@ export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
       'api::detalle-venta.detalle-venta'
     >;
     estado: Schema.Attribute.Boolean & Schema.Attribute.Required;
-    fecha_actualizacion: Schema.Attribute.DateTime & Schema.Attribute.Required;
-    fecha_creacion: Schema.Attribute.DateTime & Schema.Attribute.Required;
     inventarios: Schema.Attribute.Relation<
       'oneToMany',
       'api::inventario.inventario'
