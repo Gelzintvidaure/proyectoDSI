@@ -1,6 +1,5 @@
 'use strict';
 
-import { Context } from 'koa';
 import { factories } from '@strapi/strapi';
 
 interface CreateVentaRequestBody {
@@ -19,7 +18,7 @@ interface Producto {
 
 export default factories.createCoreController('api::venta.venta', ({ strapi }) => ({
   
-  async createCustomVenta(ctx: Context) {
+  async createCustomVenta(ctx) {
     
     const { usuarioId, productosVendidos } = ctx.request.body as CreateVentaRequestBody;
 
