@@ -1,12 +1,8 @@
-import { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { useAuthStore } from '../../stores/authStore';
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
 
-export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ children }: React.PropsWithChildren) => {
   const user = useAuthStore((state) => state.user);
 
   return (
