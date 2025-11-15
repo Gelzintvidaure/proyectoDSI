@@ -1,3 +1,4 @@
+import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import type {
   AuthResponse,
@@ -20,37 +21,46 @@ export const removeAuthToken = (): void => {
   localStorage.removeItem('auth_token');
 };
 
-const fetchAPI = async <T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> => {
-  const token = getAuthToken();
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = getAuthToken();
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.error?.message || error.message || 'Request failed');
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  return response.json();
-};
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response) {
+      const errorData = error.response.data as any;
+      const errorMessage = errorData?.error?.message || errorData?.message || 'Request failed';
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      throw new Error('Network error. Please check your connection.');
+    } else {
+      throw new Error(error.message || 'An error occurred');
+    }
+  }
+);
 
 export const authAPI = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await fetchAPI<AuthResponse>(API_ENDPOINTS.auth.login, {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-    setAuthToken(response.jwt);
-    return response;
+    const { data } = await axiosInstance.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials);
+    setAuthToken(data.jwt);
+    return data;
   },
 
   logout: (): void => {
@@ -58,7 +68,8 @@ export const authAPI = {
   },
 
   getMe: async (): Promise<User> => {
-    return fetchAPI<User>(API_ENDPOINTS.auth.me);
+    const { data } = await axiosInstance.get<User>(API_ENDPOINTS.auth.me);
+    return data;
   },
 };
 
@@ -69,58 +80,61 @@ export const productosAPI = {
     filters?: Record<string, any>;
     pagination?: { page?: number; pageSize?: number };
   }): Promise<StrapiCollectionResponse<Producto>> => {
-    const queryParams = new URLSearchParams();
+    const axiosParams: Record<string, any> = {};
     
     if (params?.populate) {
-      queryParams.append('populate', params.populate);
+      axiosParams.populate = params.populate;
     }
     
     if (params?.pagination) {
-      queryParams.append('pagination[page]', String(params.pagination.page || 1));
-      queryParams.append('pagination[pageSize]', String(params.pagination.pageSize || 25));
+      axiosParams['pagination[page]'] = params.pagination.page || 1;
+      axiosParams['pagination[pageSize]'] = params.pagination.pageSize || 25;
     }
 
     if (params?.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
-        queryParams.append(`filters[${key}]`, String(value));
+        axiosParams[`filters[${key}]`] = value;
       });
     }
-
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `${API_ENDPOINTS.productos}?${queryString}` : API_ENDPOINTS.productos;
     
-    return fetchAPI<StrapiCollectionResponse<Producto>>(endpoint);
+    const { data } = await axiosInstance.get<StrapiCollectionResponse<Producto>>(
+      API_ENDPOINTS.productos,
+      { params: axiosParams }
+    );
+    return data;
   },
 
   getById: async (id: number, populate?: string): Promise<StrapiResponse<Producto>> => {
-    const queryParams = new URLSearchParams();
+    const params: Record<string, any> = {};
     if (populate) {
-      queryParams.append('populate', populate);
+      params.populate = populate;
     }
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `${API_ENDPOINTS.productos}/${id}?${queryString}` : `${API_ENDPOINTS.productos}/${id}`;
     
-    return fetchAPI<StrapiResponse<Producto>>(endpoint);
+    const { data } = await axiosInstance.get<StrapiResponse<Producto>>(
+      `${API_ENDPOINTS.productos}/${id}`,
+      { params }
+    );
+    return data;
   },
 
   create: async (data: Partial<Producto>): Promise<StrapiResponse<Producto>> => {
-    return fetchAPI<StrapiResponse<Producto>>(API_ENDPOINTS.productos, {
-      method: 'POST',
-      body: JSON.stringify({ data }),
-    });
+    const { data: responseData } = await axiosInstance.post<StrapiResponse<Producto>>(
+      API_ENDPOINTS.productos,
+      { data }
+    );
+    return responseData;
   },
 
   update: async (id: number, data: Partial<Producto>): Promise<StrapiResponse<Producto>> => {
-    return fetchAPI<StrapiResponse<Producto>>(`${API_ENDPOINTS.productos}/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ data }),
-    });
+    const { data: responseData } = await axiosInstance.put<StrapiResponse<Producto>>(
+      `${API_ENDPOINTS.productos}/${id}`,
+      { data }
+    );
+    return responseData;
   },
 
   delete: async (id: number): Promise<void> => {
-    await fetchAPI<void>(`${API_ENDPOINTS.productos}/${id}`, {
-      method: 'DELETE',
-    });
+    await axiosInstance.delete(`${API_ENDPOINTS.productos}/${id}`);
   },
 };
 
@@ -133,7 +147,9 @@ export const inventoryAPI = {
   }> => {
     const [productosResponse, categoriasResponse] = await Promise.all([
       productosAPI.getAll({ populate: '*' }),
-      fetchAPI<StrapiCollectionResponse<any>>(`${API_ENDPOINTS.categorias}?pagination[pageSize]=1000`),
+      axiosInstance.get<StrapiCollectionResponse<any>>(API_ENDPOINTS.categorias, {
+        params: { 'pagination[pageSize]': 1000 },
+      }),
     ]);
 
     const productos = productosResponse.data;
@@ -146,7 +162,7 @@ export const inventoryAPI = {
       0
     );
     
-    const categorias = categoriasResponse.data.length;
+    const categorias = categoriasResponse.data.data.length;
 
     return {
       totalProductos,
