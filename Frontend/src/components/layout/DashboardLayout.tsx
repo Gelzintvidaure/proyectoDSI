@@ -1,7 +1,6 @@
 import { Sidebar } from './Sidebar';
 import { useAuthStore } from '../../stores/authStore';
 
-
 export const DashboardLayout = ({ children }: React.PropsWithChildren) => {
   const user = useAuthStore((state) => state.user);
 
@@ -13,8 +12,12 @@ export const DashboardLayout = ({ children }: React.PropsWithChildren) => {
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Bienvenido al Dashboard</h2>
-              <p className="text-sm text-gray-500 mt-1">Gestiona tu tienda de manera eficiente</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Bienvenido al Dashboard
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Gestiona tu tienda de manera eficiente
+              </p>
             </div>
             <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
               {user && (
@@ -27,11 +30,8 @@ export const DashboardLayout = ({ children }: React.PropsWithChildren) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
 };
-

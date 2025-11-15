@@ -28,9 +28,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               w-full px-4 py-2.5 rounded-lg border transition-colors
               ${icon ? 'pl-10' : ''}
               ${rightIcon ? 'pr-10' : ''}
-              ${error 
-                ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ${
+                error
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
               }
               focus:outline-none focus:ring-2 focus:ring-offset-0
               placeholder:text-gray-400
@@ -44,13 +45,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';
-

@@ -98,4 +98,3 @@ export interface InventoryStats {
   valorTotal: number;
   categorias: number;
 }
-

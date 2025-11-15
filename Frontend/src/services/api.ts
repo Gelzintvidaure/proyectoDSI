@@ -1,4 +1,8 @@
-import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import type {
   AuthResponse,
@@ -38,7 +42,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
@@ -46,19 +50,23 @@ axiosInstance.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response) {
       const errorData = error.response.data as any;
-      const errorMessage = errorData?.error?.message || errorData?.message || 'Request failed';
+      const errorMessage =
+        errorData?.error?.message || errorData?.message || 'Request failed';
       throw new Error(errorMessage);
     } else if (error.request) {
       throw new Error('Network error. Please check your connection.');
     } else {
       throw new Error(error.message || 'An error occurred');
     }
-  }
+  },
 );
 
 export const authAPI = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const { data } = await axiosInstance.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials);
+    const { data } = await axiosInstance.post<AuthResponse>(
+      API_ENDPOINTS.auth.login,
+      credentials,
+    );
     setAuthToken(data.jwt);
     return data;
   },
@@ -81,11 +89,11 @@ export const productosAPI = {
     pagination?: { page?: number; pageSize?: number };
   }): Promise<StrapiCollectionResponse<Producto>> => {
     const axiosParams: Record<string, any> = {};
-    
+
     if (params?.populate) {
       axiosParams.populate = params.populate;
     }
-    
+
     if (params?.pagination) {
       axiosParams['pagination[page]'] = params.pagination.page || 1;
       axiosParams['pagination[pageSize]'] = params.pagination.pageSize || 25;
@@ -96,40 +104,45 @@ export const productosAPI = {
         axiosParams[`filters[${key}]`] = value;
       });
     }
-    
-    const { data } = await axiosInstance.get<StrapiCollectionResponse<Producto>>(
-      API_ENDPOINTS.productos,
-      { params: axiosParams }
-    );
+
+    const { data } = await axiosInstance.get<
+      StrapiCollectionResponse<Producto>
+    >(API_ENDPOINTS.productos, { params: axiosParams });
     return data;
   },
 
-  getById: async (id: number, populate?: string): Promise<StrapiResponse<Producto>> => {
+  getById: async (
+    id: number,
+    populate?: string,
+  ): Promise<StrapiResponse<Producto>> => {
     const params: Record<string, any> = {};
     if (populate) {
       params.populate = populate;
     }
-    
+
     const { data } = await axiosInstance.get<StrapiResponse<Producto>>(
       `${API_ENDPOINTS.productos}/${id}`,
-      { params }
+      { params },
     );
     return data;
   },
 
-  create: async (data: Partial<Producto>): Promise<StrapiResponse<Producto>> => {
-    const { data: responseData } = await axiosInstance.post<StrapiResponse<Producto>>(
-      API_ENDPOINTS.productos,
-      { data }
-    );
+  create: async (
+    data: Partial<Producto>,
+  ): Promise<StrapiResponse<Producto>> => {
+    const { data: responseData } = await axiosInstance.post<
+      StrapiResponse<Producto>
+    >(API_ENDPOINTS.productos, { data });
     return responseData;
   },
 
-  update: async (id: number, data: Partial<Producto>): Promise<StrapiResponse<Producto>> => {
-    const { data: responseData } = await axiosInstance.put<StrapiResponse<Producto>>(
-      `${API_ENDPOINTS.productos}/${id}`,
-      { data }
-    );
+  update: async (
+    id: number,
+    data: Partial<Producto>,
+  ): Promise<StrapiResponse<Producto>> => {
+    const { data: responseData } = await axiosInstance.put<
+      StrapiResponse<Producto>
+    >(`${API_ENDPOINTS.productos}/${id}`, { data });
     return responseData;
   },
 
@@ -147,21 +160,24 @@ export const inventoryAPI = {
   }> => {
     const [productosResponse, categoriasResponse] = await Promise.all([
       productosAPI.getAll({ populate: '*' }),
-      axiosInstance.get<StrapiCollectionResponse<any>>(API_ENDPOINTS.categorias, {
-        params: { 'pagination[pageSize]': 1000 },
-      }),
+      axiosInstance.get<StrapiCollectionResponse<any>>(
+        API_ENDPOINTS.categorias,
+        {
+          params: { 'pagination[pageSize]': 1000 },
+        },
+      ),
     ]);
 
     const productos = productosResponse.data;
     const totalProductos = productos.length;
-    
+
     const stockBajo = productos.filter((p) => p.stock_actual < 10).length;
-    
+
     const valorTotal = productos.reduce(
       (sum, p) => sum + p.precio_compra * p.stock_actual,
-      0
+      0,
     );
-    
+
     const categorias = categoriasResponse.data.data.length;
 
     return {
@@ -172,4 +188,3 @@ export const inventoryAPI = {
     };
   },
 };
-

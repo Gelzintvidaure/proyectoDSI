@@ -1,8 +1,5 @@
-
 import { Navigate } from 'react-router';
 import { useAuthStore } from '../stores/authStore';
-
-
 
 export const ProtectedRoute = ({ children }: React.PropsWithChildren) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,4 +19,3 @@ export const ProtectedRoute = ({ children }: React.PropsWithChildren) => {
 
   return <>{children}</>;
 };
-

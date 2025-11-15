@@ -1,6 +1,9 @@
 // Formatting utilities
 
-export const formatCurrency = (value: number, currency: string = 'MXN'): string => {
+export const formatCurrency = (
+  value: number,
+  currency: string = 'MXN',
+): string => {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency,
@@ -30,4 +33,3 @@ export const formatDateTime = (date: string | Date): string => {
     minute: '2-digit',
   }).format(new Date(date));
 };
-
