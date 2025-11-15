@@ -137,17 +137,17 @@ export const productosAPI = {
   },
 
   update: async (
-    id: number,
+    documentId: string,
     data: Partial<Producto>,
   ): Promise<StrapiResponse<Producto>> => {
     const { data: responseData } = await axiosInstance.put<
       StrapiResponse<Producto>
-    >(`${API_ENDPOINTS.productos}/${id}`, { data });
+    >(`${API_ENDPOINTS.productos}/${documentId}`, { data });
     return responseData;
   },
 
-  delete: async (id: number): Promise<void> => {
-    await axiosInstance.delete(`${API_ENDPOINTS.productos}/${id}`);
+  delete: async (documentId: string): Promise<void> => {
+    await axiosInstance.delete(`${API_ENDPOINTS.productos}/${documentId}`);
   },
 };
 

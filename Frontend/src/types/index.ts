@@ -1,6 +1,7 @@
 // API Types
 export interface Producto {
   id: number;
+  documentId: string; // Strapi v5 uses documentId for create, update, delete operations
   Nombre: string;
   descripcion?: any;
   precio_compra: number;
