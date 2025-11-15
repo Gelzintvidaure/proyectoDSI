@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { inventoryAPI } from '../services/api';
 import { StatCard } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { ProductsTable } from '../components/products/ProductsTable';
+import { CreateProductModal } from '../components/products/CreateProductModal';
 
 export const Inventario = () => {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const {
     data: stats,
     isLoading,
@@ -35,7 +40,11 @@ export const Inventario = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Inventario</h1>
-        <Button variant="primary" size="md">
+        <Button 
+          variant="primary" 
+          size="md"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           Agregar Producto
         </Button>
       </div>
@@ -125,15 +134,19 @@ export const Inventario = () => {
         />
       </div>
 
-      {/* Products Table - Placeholder for future implementation */}
+      {/* Products Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Lista de Productos
         </h2>
-        <p className="text-gray-500">
-          La tabla de productos se implementará próximamente.
-        </p>
+        <ProductsTable />
       </div>
+
+      {/* Create Product Modal */}
+      <CreateProductModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };
