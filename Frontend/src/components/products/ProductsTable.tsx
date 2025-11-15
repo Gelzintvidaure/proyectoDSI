@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import type { CellClassParams, ColDef, ICellRendererParams } from 'ag-grid-community';
+import type {
+  CellClassParams,
+  ColDef,
+  ICellRendererParams,
+} from 'ag-grid-community';
 import { themeAlpine } from 'ag-grid-community';
 import { useProductos, useDeleteProducto } from '../../hooks/useProductos';
 import type { Producto } from '../../types';
@@ -14,7 +18,11 @@ interface ActionCellRendererProps extends ICellRendererParams<Producto> {
   onDelete: (product: Producto) => void;
 }
 
-const ActionCellRenderer = ({ data, onEdit, onDelete }: ActionCellRendererProps) => {
+const ActionCellRenderer = ({
+  data,
+  onEdit,
+  onDelete,
+}: ActionCellRendererProps) => {
   if (!data) return null;
 
   return (
@@ -44,20 +52,22 @@ export const ProductsTable = () => {
   const [editingProduct, setEditingProduct] = useState<Producto | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Producto | null>(null);
 
-  const { data, isLoading, isFetching, error } = useProductos({ populate: 'categoria' });
+  const { data, isLoading, isFetching, error } = useProductos({
+    populate: 'categoria',
+  });
   const deleteProducto = useDeleteProducto();
 
   // Filter products by name (client-side filtering)
   const filteredProducts = () => {
     if (!data?.data) return [];
-    
+
     if (!searchTerm.trim()) {
       return data.data;
     }
 
     const searchLower = searchTerm.toLowerCase().trim();
     return data.data.filter((product) =>
-      product.Nombre.toLowerCase().includes(searchLower)
+      product.Nombre.toLowerCase().includes(searchLower),
     );
   };
 
@@ -249,4 +259,3 @@ export const ProductsTable = () => {
     </div>
   );
 };
-

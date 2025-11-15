@@ -37,8 +37,13 @@ export const useUpdateProducto = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ documentId, data }: { documentId: string; data: Partial<Producto> }) =>
-      productosAPI.update(documentId, data),
+    mutationFn: ({
+      documentId,
+      data,
+    }: {
+      documentId: string;
+      data: Partial<Producto>;
+    }) => productosAPI.update(documentId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productos'] });
       queryClient.invalidateQueries({ queryKey: ['inventory-stats'] });
